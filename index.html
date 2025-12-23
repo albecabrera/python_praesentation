@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Grundlagen - Interaktive Präsentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.12.0/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.12.0/brython_stdlib.js"></script>
+    <!-- Prism.js für Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: white;
+            padding: 40px 60px 120px 60px;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 1920px) {
+            .slide {
+                padding: 50px 80px 120px 80px;
+            }
+        }
+
+        @media (min-width: 2560px) {
+            .slide {
+                padding: 60px 100px 120px 100px;
+            }
+        }
+
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        h1 {
+            color: #2563eb;
+            font-size: 42px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        @media (min-width: 1440px) {
+            h1 { font-size: 52px; }
+        }
+
+        @media (min-width: 1920px) {
+            h1 { font-size: 58px; }
+        }
+
+        @media (min-width: 2560px) {
+            h1 { font-size: 68px; }
+        }
+
+        h2 {
+            color: #1e293b;
+            font-size: 28px;
+            margin-bottom: 18px;
+        }
+
+        @media (min-width: 1920px) {
+            h2 { font-size: 36px; }
+        }
+
+        h3 {
+            color: #2563eb;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        @media (min-width: 1920px) {
+            h3 { font-size: 28px; }
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            color: #475569;
+        }
+
+        @media (min-width: 1440px) {
+            p { font-size: 20px; }
+        }
+
+        @media (min-width: 1920px) {
+            p { font-size: 24px; }
+        }
+
+        @media (min-width: 2560px) {
+            p { font-size: 28px; }
+        }
+
+        .code-container {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        @media (min-width: 1440px) {
+            .code-container {
+                padding: 25px;
+                margin: 20px 0;
+            }
+        }
+
+        @media (min-width: 1920px) {
+            .code-container {
+                padding: 30px;
+                margin: 25px 0;
+            }
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #334155;
+        }
+
+        .code-title {
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (min-width: 1440px) {
+            .code-title { font-size: 16px; }
+        }
+
+        @media (min-width: 1920px) {
+            .code-title { font-size: 18px; }
+        }
+
+        @media (min-width: 2560px) {
+            .code-title { font-size: 22px; }
+        }
+
+        .run-button {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (min-width: 1440px) {
+            .run-button {
+                padding: 14px 32px;
+                font-size: 18px;
+            }
+        }
+
+        @media (min-width: 1920px) {
+            .run-button {
+                padding: 16px 38px;
+                font-size: 20px;
+            }
+        }
+
+        @media (min-width: 2560px) {
+            .run-button {
+                padding: 20px 45px;
+                font-size: 24px;
+            }
+        }
+
+        .run-button:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+        }
+
+        .run-button:active {
+            transform: translateY(0);
+        }
+
+        .run-button::before {
+            content: '▶';
+            font-size: 14px;
+        }
+
+        @media (min-width: 1920px) {
+            .run-button::before { font-size: 18px; }
+        }
+
+        /* Code Editor mit Syntax Highlighting */
+        .code-editor-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea.code-editor {
+            width: 100%;
+            background: #0f172a;
+            color: #e2e8f0;
+            border: 3px solid #334155;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 17px;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 220px;
+            transition: border-color 0.3s;
+            flex: 1;
+            tab-size: 4;
+        }
+
+        textarea.code-editor:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Syntax Highlighting Overlay */
+        pre.code-display {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 20px;
+            background: transparent;
+            border: 3px solid transparent;
+            border-radius: 10px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 17px;
+            line-height: 1.6;
+            overflow: auto;
+            pointer-events: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        pre.code-display code {
+            background: transparent;
+            padding: 0;
+        }
+
+        /* Laptop/Desktop (1024px+) */
+        @media (min-width: 1024px) {
+            textarea.code-editor, pre.code-display {
+                font-size: 19px;
+                min-height: 300px;
+                padding: 25px;
+            }
+        }
+
+        /* Große Monitore (1440px+) */
+        @media (min-width: 1440px) {
+            textarea.code-editor, pre.code-display {
+                font-size: 21px;
+                min-height: 380px;
+                padding: 28px;
+                line-height: 1.7;
+            }
+        }
+
+        /* Full HD und größer (1920px+) */
+        @media (min-width: 1920px) {
+            textarea.code-editor, pre.code-display {
+                font-size: 23px;
+                min-height: 480px;
+                padding: 32px;
+                line-height: 1.75;
+            }
+        }
+
+        /* 4K Monitore (2560px+) */
+        @media (min-width: 2560px) {
+            textarea.code-editor, pre.code-display {
+                font-size: 26px;
+                min-height: 650px;
+                padding: 40px;
+                line-height: 1.8;
+            }
+        }
+
+        /* Extra große Displays (3440px+) */
+        @media (min-width: 3440px) {
+            textarea.code-editor, pre.code-display {
+                font-size: 30px;
+                min-height: 800px;
+                padding: 50px;
+                line-height: 1.85;
+            }
+        }
+
+        .output {
+            background: #f1f5f9;
+            border: 3px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #1e293b;
+            min-height: 80px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        @media (min-width: 1440px) {
+            .output {
+                font-size: 19px;
+                min-height: 100px;
+                padding: 22px;
+            }
+        }
+
+        @media (min-width: 1920px) {
+            .output {
+                font-size: 21px;
+                min-height: 120px;
+                padding: 26px;
+            }
+        }
+
+        @media (min-width: 2560px) {
+            .output {
+                font-size: 24px;
+                min-height: 150px;
+                padding: 32px;
+            }
+        }
+
+        .output.has-output {
+            background: #dcfce7;
+            border-color: #16a34a;
+        }
+
+        .output.error {
+            background: #fee2e2;
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+
+        .output-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (min-width: 1920px) {
+            .output-label { font-size: 18px; }
+        }
+
+        @media (min-width: 2560px) {
+            .output-label { font-size: 22px; }
+        }
+
+        /* Tip Box Styling */
+        .tip-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 5px solid #f59e0b;
+            padding: 18px 22px;
+            margin: 18px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+        }
+
+        @media (min-width: 1920px) {
+            .tip-box {
+                padding: 24px 30px;
+                border-left-width: 6px;
+            }
+        }
+
+        .tip-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tip-icon {
+            font-size: 24px;
+        }
+
+        @media (min-width: 1920px) {
+            .tip-icon { font-size: 32px; }
+        }
+
+        .tip-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #92400e;
+            margin: 0;
+        }
+
+        @media (min-width: 1920px) {
+            .tip-title { font-size: 22px; }
+        }
+
+        .tip-box p {
+            margin: 0;
+            color: #78350f;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        @media (min-width: 1920px) {
+            .tip-box p { font-size: 20px; }
+        }
+
+        .tip-box ul {
+            margin: 8px 0 0 0;
+            padding-left: 25px;
+        }
+
+        .tip-box li {
+            color: #78350f;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        @media (min-width: 1920px) {
+            .tip-box li { font-size: 20px; }
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(30, 41, 59, 0.95);
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        @media (min-width: 1920px) {
+            .controls {
+                padding: 20px 35px;
+                gap: 20px;
+            }
+        }
+
+        .nav-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        @media (min-width: 1920px) {
+            .nav-button {
+                padding: 16px 32px;
+                font-size: 20px;
+            }
+        }
+
+        .nav-button:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        @media (min-width: 1920px) {
+            .slide-counter {
+                padding: 16px 28px;
+                font-size: 20px;
+            }
+        }
+
+        .data-type-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        @media (min-width: 1920px) {
+            .data-type-grid {
+                gap: 30px;
+                margin: 35px 0;
+            }
+        }
+
+        .data-type-card {
+            padding: 30px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        @media (min-width: 1920px) {
+            .data-type-card {
+                padding: 40px;
+            }
+        }
+
+        .data-type-card h3 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        @media (min-width: 1920px) {
+            .data-type-card h3 { font-size: 32px; }
+        }
+
+        .data-type-card p {
+            color: rgba(255,255,255,0.9);
+            font-size: 17px;
+        }
+
+        @media (min-width: 1920px) {
+            .data-type-card p { font-size: 22px; }
+        }
+
+        .card-blue { background: #2563eb; }
+        .card-green { background: #16a34a; }
+        .card-orange { background: #f59e0b; }
+        .card-purple { background: #8b5cf6; }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 5px solid #2563eb;
+            padding: 20px;
+            margin: 18px 0;
+            border-radius: 8px;
+        }
+
+        @media (min-width: 1920px) {
+            .info-box {
+                padding: 28px;
+                border-left-width: 6px;
+            }
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .warning-box {
+            background: #fef2f2;
+            border-left: 5px solid #dc2626;
+            padding: 20px;
+            margin: 18px 0;
+            border-radius: 8px;
+        }
+
+        @media (min-width: 1920px) {
+            .warning-box {
+                padding: 28px;
+                border-left-width: 6px;
+            }
+        }
+
+        .warning-box p {
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .success-box {
+            background: #f0fdf4;
+            border-left: 5px solid #16a34a;
+            padding: 20px;
+            margin: 18px 0;
+            border-radius: 8px;
+        }
+
+        @media (min-width: 1920px) {
+            .success-box {
+                padding: 28px;
+                border-left-width: 6px;
+            }
+        }
+
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .title-slide h1 {
+            color: white;
+            font-size: 64px;
+            margin-bottom: 25px;
+        }
+
+        @media (min-width: 1920px) {
+            .title-slide h1 { font-size: 82px; }
+        }
+
+        @media (min-width: 2560px) {
+            .title-slide h1 { font-size: 98px; }
+        }
+
+        .title-slide .subtitle {
+            font-size: 34px;
+            margin-bottom: 35px;
+            color: rgba(255,255,255,0.95);
+        }
+
+        @media (min-width: 1920px) {
+            .title-slide .subtitle { font-size: 44px; }
+        }
+
+        .title-slide .description {
+            font-size: 22px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        @media (min-width: 1920px) {
+            .title-slide .description { font-size: 28px; }
+        }
+
+        ul {
+            margin: 15px 0;
+            padding-left: 35px;
+        }
+
+        @media (min-width: 1920px) {
+            ul { padding-left: 45px; }
+        }
+
+        li {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        @media (min-width: 1920px) {
+            li {
+                font-size: 24px;
+                margin-bottom: 14px;
+            }
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            margin: 25px 0;
+        }
+
+        @media (min-width: 1920px) {
+            .two-column { gap: 50px; }
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: #92400e;
+            font-weight: bold;
+        }
+
+        @media (min-width: 1920px) {
+            .highlight {
+                padding: 4px 10px;
+                font-size: 1.05em;
+            }
+        }
+
+        .slide-content {
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 80px);
+        }
+
+        .slide-content-with-code {
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 80px);
+        }
+
+        .slide-content-with-code .code-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Prism Theme Override für bessere Lesbarkeit */
+        .token.comment { color: #6b7280; font-style: italic; }
+        .token.string { color: #10b981; }
+        .token.number { color: #f59e0b; }
+        .token.keyword { color: #8b5cf6; font-weight: bold; }
+        .token.function { color: #3b82f6; }
+        .token.operator { color: #ec4899; }
+        .token.builtin { color: #06b6d4; }
+    </style>
+</head>
+<body onload="brython()">
+    <div class="presentation">
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <h1>🐍 Python Grundlagen</h1>
+            <div class="subtitle">Einfache Datentypen und Strings</div>
+            <p class="description">Ein interaktiver Einführungskurs für Schülerinnen und Schüler</p>
+            <p class="description" style="margin-top: 50px; font-size: 18px;">💡 Drücke → oder klicke "Weiter" um zu starten</p>
+        </div>
+
+        <!-- Slide 2: Einfache Datentypen -->
+        <div class="slide">
+            <h1>Einfache Datentypen</h1>
+            <p>Die 4 wichtigsten einfachen Datentypen in Python:</p>
+            
+            <div class="data-type-grid">
+                <div class="data-type-card card-blue">
+                    <h3>STRING (str)</h3>
+                    <p>Zeichenkette, erlaubt kein Weiterrechnen</p>
+                </div>
+                <div class="data-type-card card-green">
+                    <h3>INTEGER (int)</h3>
+                    <p>Ganzzahl, für Berechnungen geeignet</p>
+                </div>
+                <div class="data-type-card card-orange">
+                    <h3>FLOAT (float)</h3>
+                    <p>Gleitkommazahl, für Berechnungen geeignet</p>
+                </div>
+                <div class="data-type-card card-purple">
+                    <h3>BOOLEAN (bool)</h3>
+                    <p>Wahrheitswert (True/False)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: String Demo -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>STRING - Zeichenketten</h1>
+                    <p>Strings sind Zeichenketten, die in Anführungszeichen stehen.</p>
+                </div>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">📝 Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(3)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-3">x = "Hallo"
+print(x)
+
+# Versuche es selbst!
+mein_name = "Max"
+print("Ich heiße " + mein_name)</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-3">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">💡</span>
+                        <p class="tip-title">Best Practice</p>
+                    </div>
+                    <p><strong>Sprechende Variablennamen:</strong> Nutze aussagekräftige Namen wie <span class="highlight">mein_name</span> statt <span class="highlight">x</span> oder <span class="highlight">n</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Integer Demo -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>INTEGER - Ganzzahlen</h1>
+                    <p>Integer sind ganze Zahlen ohne Dezimalstellen. Mit ihnen kann man rechnen!</p>
+                </div>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">🔢 Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(4)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-4">x = -50 + 50
+print(x)
+
+# Probiere andere Berechnungen aus!
+alter = 15
+naechstes_jahr = alter + 1
+print("Nächstes Jahr bin ich " + str(naechstes_jahr))</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-4">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">✨</span>
+                        <p class="tip-title">Clean Code Tipp</p>
+                    </div>
+                    <p><strong>Aussagekräftige Namen:</strong> <span class="highlight">alter</span> ist besser als <span class="highlight">x</span>. Der Code erklärt sich selbst!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Float Demo -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>FLOAT - Gleitkommazahlen</h1>
+                    <p>Floats sind Dezimalzahlen. In Python verwendet man einen Punkt (.) statt Komma!</p>
+                </div>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">📊 Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(5)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-5">x = 50.5
+print(x)
+
+# Rechne mit Dezimalzahlen
+preis = 19.99
+menge = 3
+gesamt = preis * menge
+print("Gesamtpreis: " + str(gesamt) + " Euro")</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-5">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">🎯</span>
+                        <p class="tip-title">Good Practice</p>
+                    </div>
+                    <p><strong>Kommentare nutzen:</strong> Erkläre komplexe Berechnungen mit <span class="highlight"># Kommentaren</span></p>
+                    <ul>
+                        <li>Kurz und prägnant</li>
+                        <li>Erklärt das "Warum", nicht das "Was"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: String-Verkettung -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>String-Verkettung</h1>
+                    <p>Strings können mit dem <span class="highlight">+</span> Operator verkettet werden.</p>
+                </div>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">🔗 Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(6)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-6">firmenname = "Ecosia GmbH"
+print("Hallo liebes Team von " + firmenname)
+
+# Deine Aufgabe:
+berufsfeld = "Software-Entwicklung"
+nachricht = "Ich möchte gerne im Bereich " + berufsfeld + " arbeiten."
+print(nachricht)</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-6">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">🚀</span>
+                        <p class="tip-title">Profi-Tipp</p>
+                    </div>
+                    <p><strong>F-Strings sind moderner:</strong> Statt <span class="highlight">"Text " + variable</span> nutze <span class="highlight">f"Text {variable}"</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: String-Methoden -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>String-Methoden</h1>
+                    <p>Python bietet viele eingebaute Funktionen für die Arbeit mit Strings.</p>
+                </div>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">🛠️ Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(7)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-7">x = "Hallo Welt"
+
+print("Original:", x)
+print("Länge:", len(x))
+print("Großbuchstaben:", x.upper())
+print("Kleinbuchstaben:", x.lower())
+print("Aufgeteilt:", x.split())
+
+# Probiere weitere Methoden aus!
+print("Ersetzen:", x.replace("Hallo", "Guten Tag"))</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-7">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">📚</span>
+                        <p class="tip-title">Code-Organisation</p>
+                    </div>
+                    <p><strong>Eine Zeile = Eine Aufgabe:</strong> Vermeide zu lange Zeilen, das erhöht die Lesbarkeit!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Indexing -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>INDEXING - Zugriff auf einzelne Zeichen</h1>
+                    <p>Jedes Zeichen in einem String hat einen Index (Position). Die Zählung beginnt bei <span class="highlight">0</span>!</p>
+                </div>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">🎯 Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(8)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-8">x = "Hallo Welt"
+#     0123456789
+
+print("Zeichen an Index 0:", x[0])
+print("Zeichen an Index 2:", x[2])
+print("Zeichen an Index 6:", x[6])
+
+# Negativer Index (von hinten zählen)
+print("Letztes Zeichen:", x[-1])
+print("Vorletztes Zeichen:", x[-2])</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-8">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">💡</span>
+                        <p class="tip-title">Debuggen Tipp</p>
+                    </div>
+                    <p><strong>Ausgaben nutzen:</strong> Mit <span class="highlight">print()</span> kannst du Werte überprüfen und Fehler finden!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Slicing -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>SLICING - Teilbereiche extrahieren</h1>
+                    <p>Mit Slicing können wir Teile eines Strings extrahieren: <span class="highlight">string[start:ende]</span></p>
+                </div>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">✂️ Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(9)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-9">x = "Hallo Welt"
+
+print("Original:", x)
+print("x[0:5]:", x[0:5])   # Von Index 0 bis 4
+print("x[6:10]:", x[6:10]) # Von Index 6 bis 9
+print("x[:5]:", x[:5])     # Vom Anfang bis Index 4
+print("x[6:]:", x[6:])     # Von Index 6 bis Ende
+print("x[:]:", x[:])       # Kompletter String
+
+# Probiere eigene Slices aus!
+print("x[2:8]:", x[2:8])</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-9">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">✨</span>
+                        <p class="tip-title">Kommentar-Praxis</p>
+                    </div>
+                    <p><strong>Erkläre komplexe Syntax:</strong> Kommentare bei Slicing helfen beim Verständnis! (Siehe Beispiel)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Unveränderbarkeit -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>UNVERÄNDERBARKEIT von Strings</h1>
+                    <p>Strings sind in Python <strong>unveränderbar</strong> (immutable). Man kann einzelne Zeichen nicht direkt ändern!</p>
+                </div>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">❌ Was funktioniert NICHT</span>
+                        <button class="run-button" onclick="runCode(10)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-10"># Dies führt zu einem Fehler:
+x = "Hallo"
+try:
+    x[2] = "X"  # Fehler!
+except TypeError as e:
+    print("❌ Fehler:", e)
+
+# ✅ So funktioniert es:
+x = "HaXlo"  # Neuen String zuweisen
+print("✅ Korrekt:", x)
+
+# Oder mit replace():
+x = "Hallo"
+x = x.replace("l", "X")
+print("✅ Mit replace():", x)</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-10">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">🛡️</span>
+                        <p class="tip-title">Fehlerbehandlung</p>
+                    </div>
+                    <p><strong>Try-Except nutzen:</strong> Fange Fehler ab statt das Programm abstürzen zu lassen!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Zusammenfassung -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>🎯 Zusammenfassung</h1>
+                    
+                    <div class="two-column">
+                        <div>
+                            <h3>Einfache Datentypen</h3>
+                            <ul>
+                                <li><strong>String (str)</strong> - Zeichenketten</li>
+                                <li><strong>Integer (int)</strong> - Ganze Zahlen</li>
+                                <li><strong>Float (float)</strong> - Dezimalzahlen</li>
+                                <li><strong>Boolean (bool)</strong> - Wahrheitswerte</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>String-Operationen</h3>
+                            <ul>
+                                <li>Verkettung mit <span class="highlight">+</span></li>
+                                <li>Indexing: <span class="highlight">x[2]</span></li>
+                                <li>Slicing: <span class="highlight">x[0:5]</span></li>
+                                <li>Methoden: <span class="highlight">.upper()</span>, <span class="highlight">.lower()</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">🎮 Freies Experimentieren</span>
+                        <button class="run-button" onclick="runCode(11)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-11"># Hier kannst du alles ausprobieren!
+
+name = "Python"
+zahl = 2024
+kommazahl = 3.14
+
+print(name + " macht Spaß!")
+print("Jahr:", zahl)
+print("Pi ist ungefähr", kommazahl)
+
+# Versuche selbst etwas!</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-11">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Praxisaufgaben -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>📚 Praxisaufgaben</h1>
+                    <p>Probiere diese Aufgaben aus und teste dein Wissen!</p>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">🏆 Challenge: Löse die Aufgaben!</span>
+                        <button class="run-button" onclick="runCode(12)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-12"># Aufgabe 1: Gib jeden Buchstaben deines Namens aus
+name = "Anna"
+# Schreibe hier deinen Code...
+
+
+# Aufgabe 2: Erstelle einen Bewerbungstext
+firma = "TechCorp"
+berufsfeld = "Programmierung"
+# Schreibe hier deinen Code...
+
+
+# Aufgabe 3: Wandle Datentypen um
+zahl = 42
+# Wandle in String um und gib aus...
+
+
+# Aufgabe 4: Nutze String-Methoden
+text = "python ist toll"
+# Wandle in Großbuchstaben um...
+
+
+print("✅ Aufgaben gelöst!")</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-12">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">🎓</span>
+                        <p class="tip-title">Clean Code Prinzipien</p>
+                    </div>
+                    <ul>
+                        <li><strong>Sprechende Namen:</strong> Variablen sollen erklären, was sie enthalten</li>
+                        <li><strong>Kommentare:</strong> Erkläre komplexe Logik, nicht offensichtlichen Code</li>
+                        <li><strong>Konsistenz:</strong> Halte dich an einen Stil (z.B. snake_case)</li>
+                        <li><strong>Einfachheit:</strong> Schreibe so einfach wie möglich!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Zahlen Title -->
+        <div class="slide title-slide">
+            <h1>🔢 Zahlen in Python</h1>
+            <div class="subtitle">Integer, Float und mathematische Operationen</div>
+            <p class="description">Rechnen und arbeiten mit Zahlen</p>
+        </div>
+
+        <!-- Slide 14: type() Funktion -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>Die type() Funktion</h1>
+                    <p>Mit <span class="highlight">type()</span> kannst du den Datentyp einer Variable herausfinden.</p>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">🔍 Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(14)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-14"># Verschiedene Datentypen testen
+zahl_ganz = 10
+zahl_komma = 10.5
+text = "Hallo"
+wahrheit = True
+
+print("Typ von", zahl_ganz, "ist:", type(zahl_ganz))
+print("Typ von", zahl_komma, "ist:", type(zahl_komma))
+print("Typ von", text, "ist:", type(text))
+print("Typ von", wahrheit, "ist:", type(wahrheit))
+
+# Division erzeugt immer einen Float!
+ergebnis = 10 / 2
+print("\n10 / 2 =", ergebnis)
+print("Typ:", type(ergebnis))</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-14">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>Wichtig:</strong> Die Division <span class="highlight">/</span> erzeugt in Python immer einen Float, selbst wenn das Ergebnis eine ganze Zahl ist!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Mathematische Operationen -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>Mathematische Operationen</h1>
+                    <p>Python bietet verschiedene Rechenoperationen für Zahlen.</p>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">➗ Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(15)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-15"># Grundrechenarten
+print("Addition: 10 + 5 =", 10 + 5)
+print("Subtraktion: 10 - 5 =", 10 - 5)
+print("Multiplikation: 10 * 5 =", 10 * 5)
+print("Division: 10 / 3 =", 10 / 3)
+
+print("\n--- Spezielle Operationen ---")
+# Ganzzahldivision (ohne Rest)
+print("Ganzzahldivision: 10 // 3 =", 10 // 3)
+
+# Modulo (nur der Rest)
+print("Modulo (Rest): 10 % 3 =", 10 % 3)
+print("Modulo: 11 % 2 =", 11 % 2)
+
+# Potenz
+print("Potenz: 2 ** 3 =", 2 ** 3)</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-15">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">💡</span>
+                        <p class="tip-title">Modulo-Operator (%)</p>
+                    </div>
+                    <p><strong>Nützlich für:</strong> Prüfen ob eine Zahl gerade ist: <span class="highlight">zahl % 2 == 0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Benutzereingaben Title -->
+        <div class="slide title-slide">
+            <h1>⌨️ Benutzereingaben</h1>
+            <div class="subtitle">Interaktive Programme mit input()</div>
+            <p class="description">Kommunikation mit dem Benutzer</p>
+        </div>
+
+        <!-- Slide 17: input() Funktion -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>Die input() Funktion</h1>
+                    <p>Mit <span class="highlight">input()</span> kannst du Benutzereingaben entgegennehmen.</p>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">💬 Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(17)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-17"># Einfache Eingabe
+# name = input("Wie ist dein Name? ")
+# print("Hallo", name + "!")
+
+# HINWEIS: input() funktioniert in Brython eingeschränkt
+# Stattdessen simulieren wir die Eingabe:
+
+name = "Max"  # Simulierte Eingabe
+print("Eingabe:", name)
+print("Hallo", name + "!")
+
+# input() gibt IMMER einen String zurück!
+# alter_text = input("Wie alt bist du? ")
+alter_text = "15"  # Simuliert
+print("Typ von Eingabe:", type(alter_text))
+
+# Umwandeln in Integer für Berechnungen
+alter_zahl = int(alter_text)
+naechstes_jahr = alter_zahl + 1
+print("Nächstes Jahr bist du", naechstes_jahr, "Jahre alt!")</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-17">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="warning-box">
+                    <p><strong>Wichtig:</strong> <span class="highlight">input()</span> gibt immer einen String zurück! Nutze <span class="highlight">int()</span> oder <span class="highlight">float()</span> für Zahlen.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Typumwandlung -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>Typumwandlung (Type Casting)</h1>
+                    <p>Wandle Datentypen mit eingebauten Funktionen um.</p>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">🔄 Interaktives Beispiel</span>
+                        <button class="run-button" onclick="runCode(18)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-18"># String zu Integer
+text_zahl = "42"
+echte_zahl = int(text_zahl)
+print("String '42' als Integer:", echte_zahl)
+print("Rechnung möglich:", echte_zahl + 8)
+
+# String zu Float
+text_komma = "3.14"
+pi = float(text_komma)
+print("\nString '3.14' als Float:", pi)
+
+# Integer/Float zu String
+zahl = 100
+text = str(zahl)
+print("\nZahl 100 als String:", text)
+print("Verkettung möglich: 'Hallo' +", text)
+
+# Fehlerbehandlung
+try:
+    fehler = int("abc")  # Fehler!
+except ValueError as e:
+    print("\n❌ Fehler beim Umwandeln: 'abc' ist keine Zahl!")</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-18">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="success-box">
+                    <p><strong>Umwandlungsfunktionen:</strong> <span class="highlight">int()</span>, <span class="highlight">float()</span>, <span class="highlight">str()</span>, <span class="highlight">bool()</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Erweiterte Praxisaufgaben -->
+        <div class="slide">
+            <div class="slide-content-with-code">
+                <div>
+                    <h1>🚀 Erweiterte Praxisaufgaben</h1>
+                    <p>Kombiniere dein Wissen über Strings, Zahlen und Eingaben!</p>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-title">💪 Challenge: Fortgeschrittene Aufgaben</span>
+                        <button class="run-button" onclick="runCode(19)">Code ausführen</button>
+                    </div>
+                    <textarea class="code-editor" id="code-19"># Aufgabe 1: Prüfe ob eine Zahl gerade oder ungerade ist
+zahl = 17
+# Nutze den Modulo-Operator %
+
+
+# Aufgabe 2: Berechne den Durchschnitt
+note1 = 2.3
+note2 = 1.7
+note3 = 2.0
+# Berechne und gib den Durchschnitt aus
+
+
+# Aufgabe 3: String-Analyse
+text = "Python Programmierung macht Spaß!"
+# Gib die Länge aus
+# Wandle in Großbuchstaben um
+# Finde die Position von "Spaß"
+
+
+# Aufgabe 4: Simulierte Eingabe verarbeiten
+eingabe = "25"  # Simulierte Benutzereingabe
+# Wandle in Integer um
+# Verdopple die Zahl
+# Gib das Ergebnis aus
+
+
+print("✅ Alle Aufgaben bearbeitet!")</textarea>
+                    <div class="output-label">Ausgabe:</div>
+                    <div class="output" id="output-19">Klicke auf "Code ausführen" um das Ergebnis zu sehen...</div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-box-header">
+                        <span class="tip-icon">🎯</span>
+                        <p class="tip-title">Best Practices Zusammenfassung</p>
+                    </div>
+                    <ul>
+                        <li><strong>Aussagekräftige Namen:</strong> <span class="highlight">durchschnitt</span> statt <span class="highlight">d</span></li>
+                        <li><strong>Kommentiere komplexe Logik:</strong> Erkläre das "Warum"</li>
+                        <li><strong>Nutze type():</strong> Bei Unsicherheit über Datentypen</li>
+                        <li><strong>Fehlerbehandlung:</strong> Try-Except für robuste Programme</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="nav-button" id="prev-btn" onclick="previousSlide()">← Zurück</button>
+        <span class="slide-counter" id="slide-counter">1 / 19</span>
+        <button class="nav-button" id="next-btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+
+    <script type="text/python">
+        from browser import document, window, html
+        import sys
+        import io
+        import traceback
+
+        def run_python_code(code, output_id):
+            output_elem = document[output_id]
+            
+            # Redirect stdout
+            old_stdout = sys.stdout
+            sys.stdout = io.StringIO()
+            
+            try:
+                # Execute the code
+                exec(code)
+                
+                # Get the output
+                result = sys.stdout.getvalue()
+                
+                if result:
+                    output_elem.text = result
+                    output_elem.classList.remove('error')
+                    output_elem.classList.add('has-output')
+                else:
+                    output_elem.text = "✅ Code erfolgreich ausgeführt (keine Ausgabe)"
+                    output_elem.classList.remove('error')
+                    output_elem.classList.add('has-output')
+                    
+            except Exception as e:
+                error_msg = f"❌ Fehler:\n{str(e)}\n\n{traceback.format_exc()}"
+                output_elem.text = error_msg
+                output_elem.classList.add('error')
+                output_elem.classList.remove('has-output')
+            finally:
+                sys.stdout = old_stdout
+
+        # Make function available to JavaScript
+        window.runPythonCode = run_python_code
+    </script>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === n) {
+                    slide.classList.add('active');
+                }
+            });
+
+            currentSlide = n;
+            updateControls();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function updateControls() {
+            document.getElementById('slide-counter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function runCode(slideNum) {
+            const codeArea = document.getElementById(`code-${slideNum}`);
+            const code = codeArea.value;
+            const outputId = `output-${slideNum}`;
+            
+            // Call Brython function
+            if (window.runPythonCode) {
+                window.runPythonCode(code, outputId);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                previousSlide();
+            } else if (e.key === 'F11') {
+                e.preventDefault();
+                document.documentElement.requestFullscreen();
+            }
+        });
+
+        // Initialize
+        updateControls();
+    </script>
+</body>
+</html>
